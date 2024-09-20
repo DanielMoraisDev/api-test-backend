@@ -6,7 +6,7 @@ import cors from "cors";
 const app = express();
 const PORT = process.env.PORT;
 
-import tarefasRouter from "./routes/usuariosRouter.js";
+import usuariosRouter from "./routes/usuariosRouter.js";
 
 app.use(json());
 app.use(express.urlencoded({ extended: true }));
@@ -23,7 +23,7 @@ conn
     console.error("[APP] Error: " + error);
   });
 
-app.use("/", tarefasRouter);
+app.use("/", usuariosRouter);
 
 app.use((req, res) => {
   res.status(404).json({

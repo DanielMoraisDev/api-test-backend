@@ -12,7 +12,7 @@ const conn = new Sequelize(DBName, DBUser, DBPassword, {
 })
 
 try {
-    await conn.authenticate()
+    conn.authenticate()
     console.log('[DB] Conexão realizada com sucesso')
 } catch (error) {
     console.error('[DB] Error: ' + error)
