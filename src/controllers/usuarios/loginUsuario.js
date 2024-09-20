@@ -5,19 +5,25 @@ const loginUsuario = async (req, res) => {
     const { email, senha } = req.body
 
     try {
-        const usuario = await Usuario.findOne({ where: { email: email, senha: senha } })
+        const usuario = await Usuario.findOne({ where: { email: email } })
 
         if (!usuario) {
             return res.status(500).json({ message: "Dados incorretos ou usuário não cadastrado" })
         }
 
-        const createToken = await usuariosHelpers.createToken(usuario, req, res)
+        bcrypt.compare(senha, usuario.senha, async (err) => {
+            if (err) {
+                return res.status(500).json({ message: "Senha incorreta" })
+            }
 
-        if (!createToken) {
-            return res.status(500).json({ message: "Erro interno" })
-        }
+            const createToken = await usuariosHelpers.createToken(usuario, req, res)
 
-        res.json({ message: "Usuário logado com sucesso" })
+            if (!createToken) {
+                return res.status(500).json({ message: "Erro interno" })
+            }
+
+            res.json({ message: "Usuário logado com sucesso" })
+        });
 
     } catch (error) {
         console.error("[CONTROLLER] [USUARIOS] [LOGIN] Error: " + error)

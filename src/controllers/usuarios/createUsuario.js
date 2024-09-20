@@ -1,4 +1,5 @@
 import Usuario from "../../models/usuarioModel.js";
+import bcrypt from "bcrypt"
 
 const createUsuario = async (req, res) => {
   const { nome, email, senha } = req.body;
@@ -15,20 +16,34 @@ const createUsuario = async (req, res) => {
     return res.status(500).json({ message: "A senha é necessária" })
   }
 
-  const novaUsuario = {
-    nome,
-    email,
-    senha,
-  };
-
   try {
-    const usuarioCreated = await Usuario.create(novaUsuario);
+    const saltRounds = 10;
 
-    if (!usuarioCreated) {
-      return res.status(500).json({ message: "Error ao criar o usuário" })
-    }
+    bcrypt.genSalt(saltRounds, (err, salt) => {
+      if (err) {
+        return res.status(500).json({ message: "Error interno" })
+      }
 
-    res.status(201).json({ message: "Usuário criado com sucesso" })
+      bcrypt.hash(senha, salt, async (err, hash) => {
+        if (err) {
+          return res.status(500).json({ message: "Error interno" })
+        }
+
+        const novaUsuario = {
+          nome,
+          email,
+          senha: hash,
+        };
+
+        const usuarioCreated = await Usuario.create(novaUsuario);
+
+        if (!usuarioCreated) {
+          return res.status(500).json({ message: "Error ao criar o usuário" })
+        }
+
+        res.status(201).json({ message: "Usuário criado com sucesso" })
+      });
+    });
 
   } catch (error) {
     console.error("[CONTROLLER USUARIOS CREATE] Error: " + error);
