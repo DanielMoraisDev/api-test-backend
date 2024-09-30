@@ -1,33 +1,32 @@
-import usuariosHelpers from "../../helpers/usuarios/index.js"
-import Usuario from "../../models/usuarioModel.js"
+import login from "./functions/login.js";
 
 const loginUsuario = async (req, res) => {
-    const { email, senha } = req.body
+  const { email, senha } = req.body;
 
-    try {
-        const usuario = await Usuario.findOne({ where: { email: email } })
+  if (!email) {
+    return res.status(500).json({ message: "O email é necessário" });
+  }
 
-        if (!usuario) {
-            return res.status(500).json({ message: "Dados incorretos ou usuário não cadastrado" })
-        }
+  if (!senha) {
+    return res.status(500).json({ message: "A senha é necessária" });
+  }
 
-        bcrypt.compare(senha, usuario.senha, async (err) => {
-            if (err) {
-                return res.status(500).json({ message: "Senha incorreta" })
-            }
+  const usuario = {
+    senha: senha,
+    email: email
+  }
 
-            const createToken = await usuariosHelpers.createToken(usuario, req, res)
+  try {
+    const loginUsuario = await login(usuario);
 
-            if (!createToken) {
-                return res.status(500).json({ message: "Erro interno" })
-            }
-
-            res.json({ message: "Usuário logado com sucesso" })
-        });
-
-    } catch (error) {
-        console.error("[CONTROLLER] [USUARIOS] [LOGIN] Error: " + error)
+    if (!loginUsuario) {
+      return res.status(500).json("Não foi possivel logar o usuário");
     }
-}
 
-export default loginUsuario
+    return res.status(201).json({ message: "Usuário logado" });
+  } catch (error) {
+    console.error("[CONTROLLER] [USUARIOS] [LOGIN] Error: " + error);
+  }
+};
+
+export default loginUsuario;

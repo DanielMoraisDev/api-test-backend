@@ -2,17 +2,16 @@ import Usuario from "../../../models/usuarioModel.js";
 import bcrypt from "bcrypt";
 
 const create = async (usuario) => {
-
   const saltRounds = 10;
 
   bcrypt.genSalt(saltRounds, (err, salt) => {
     if (err) {
-      return "Error interno";
+      return new Error("Error interno");
     }
 
     bcrypt.hash(usuario.senha, salt, async (err, hash) => {
       if (err) {
-        return "Error ao criptografar senha";
+        return new Error("Error ao criptografar senha");
       }
 
       const novaUsuario = {
@@ -24,16 +23,16 @@ const create = async (usuario) => {
       const verifyEmail = await Usuario.findOne({ where: { email: novaUsuario.email } })
 
       if (!verifyEmail) {
-        return "Esse email já está cadastrado";
+        return new Error("Esse email já está cadastrado");
       }
 
       const usuarioCreated = await Usuario.create(novaUsuario);
 
       if (!usuarioCreated) {
-        return "Erro ao criar usuário";
+        return new Error("Erro ao criar usuário");
       }
 
-      return "Usuário criado com sucesso";
+      return usuarioCreated
     });
   });
 };

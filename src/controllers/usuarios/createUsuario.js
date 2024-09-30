@@ -22,9 +22,13 @@ const createUsuario = async (req, res) => {
   }
 
   try {
-    createUsuario = await create(usuario)
+    const createUsuario = await create(usuario)
 
-    res.status(201).json({ message: createUsuario })
+    if (!createUsuario) {
+      return res.status(500).json("Não foi possivel criar o usuário")
+    }
+
+    return res.status(201).json({ message: createUsuario })
   } catch (error) {
     console.error("[CONTROLLER USUARIOS CREATE] Error: " + error);
   }
